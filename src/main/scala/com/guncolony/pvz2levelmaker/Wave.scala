@@ -146,7 +146,6 @@ object Wave {
         // Append tabs to make 16 characters
         builder.append(zombie + "\u0009" * getTabSeparatorCount(zombie.length))
       }
-      if(builder.nonEmpty) builder.delete(builder.size - 2, builder.size) // Delete trailing tab
       builder.toString.trim
     }
     def getZombieText(Zombies: Iterable[ZombieDataWithRow]): String
@@ -196,14 +195,14 @@ object Wave {
       // Note - this has the side effect of changing the relevant fields in variable--json
       val objdata: JsonObject = json.get("objdata").getAsJsonObject
       if(additionalPlantFood > 0)
-        objdata.add("AdditionalPlantFood", new JsonPrimitive(additionalPlantFood))
+        objdata.add("AdditionalPlantfood", new JsonPrimitive(additionalPlantFood))
       else
-        objdata.remove("AdditionalPlantFood")
+        objdata.remove("AdditionalPlantfood")
       if(dynamicPlantFood.asScala.sum > 0)
-        objdata.add("DynamicPlantFood", gson.toJsonTree(dynamicPlantFood,
+        objdata.add("DynamicPlantfood", gson.toJsonTree(dynamicPlantFood,
           new TypeToken[util.ArrayList[Int]]{}.getType))
       else
-        objdata.remove("DynamicPlantFood")
+        objdata.remove("DynamicPlantfood")
       objdata.add("Zombies", gson.toJsonTree(Zombies,
         new TypeToken[util.ArrayList[ZombieDataWithRow]]{}.getType))
       json
@@ -329,9 +328,9 @@ object Wave {
           val objdata = if (objdataElement != null) objdataElement.getAsJsonObject else null
           if(classString == "SpawnZombiesJitteredWaveActionProps") {
             // Regular wave
-            val dynamicPlantFood = objdata.get("DynamicPlantFood")
+            val dynamicPlantFood = objdata.get("DynamicPlantfood")
             module = new SpawnZombiesModule(moduleObject,
-              Option(objdata.get("AdditionalPlantFood")).getOrElse(new JsonPrimitive(0)).getAsInt,
+              Option(objdata.get("AdditionalPlantfood")).getOrElse(new JsonPrimitive(0)).getAsInt,
 
               if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
                 gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Int]]{}.getType)
