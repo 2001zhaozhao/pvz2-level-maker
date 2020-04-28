@@ -200,7 +200,7 @@ object Wave {
         objdata.remove("AdditionalPlantfood")
       if(dynamicPlantFood.asScala.sum > 0)
         objdata.add("DynamicPlantfood", gson.toJsonTree(dynamicPlantFood,
-          new TypeToken[util.ArrayList[Int]]{}.getType))
+          new TypeToken[util.ArrayList[Integer]]{}.getType))
       else
         objdata.remove("DynamicPlantfood")
       objdata.add("Zombies", gson.toJsonTree(Zombies,
@@ -333,7 +333,7 @@ object Wave {
               Option(objdata.get("AdditionalPlantfood")).getOrElse(new JsonPrimitive(0)).getAsInt,
 
               if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
-                gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Int]]{}.getType)
+                gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Integer]]{}.getType)
               else new util.ArrayList[Int](util.Arrays.asList(0,0,0,0,0,0,0)),
 
               gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
