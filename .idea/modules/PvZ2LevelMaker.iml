@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="pvz2levelmaker [file:/C:/Users/Jason/git/PvZ2LevelMaker/]" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_X">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../target/scala-2.13/classes" />
     <output-test url="file://$MODULE_DIR$/../../target/scala-2.13/test-classes" />
     <exclude-output />
@@ -11,8 +11,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.google.code.gson:gson:2.8.6:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:12.0.2:win:jar" level="project" />
     <orderEntry type="module-library">
       <library name="sbt: unmanaged-sources-and-docs">
         <CLASSES />
@@ -25,21 +35,18 @@
           <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/openjfx/javafx-fxml/12.0.2/javafx-fxml-12.0.2-sources.jar!/" />
           <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/openjfx/javafx-swing/12.0.2/javafx-swing-12.0.2-sources.jar!/" />
           <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/openjfx/javafx-web/12.0.2/javafx-web-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-base/srcs/javafx-base-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-controls/srcs/javafx-controls-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-fxml/srcs/javafx-fxml-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-graphics/srcs/javafx-graphics-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-media/srcs/javafx-media-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-swing/srcs/javafx-swing-12.0.2-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.openjfx/javafx-web/srcs/javafx-web-12.0.2-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="sbt: org.scalafx:scalafx_2.13:12.0.2-R18:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.13.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalafx:scalafx_2.13:12.0.2-R18:jar" level="project" />
   </component>
 </module>

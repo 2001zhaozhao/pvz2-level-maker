@@ -1,10 +1,14 @@
+enablePlugins(JavaAppPackaging)
+
 name := "PvZ2LevelMaker"
 
 version := "0.1"
 
 scalaVersion := "2.13.2"
 
+organization := "com.guncolony"
 
+maintainer in Windows := "com.guncolony"
 
 // Add dependency on ScalaFX library
 libraryDependencies += "org.scalafx" %% "scalafx" % "12.0.2-R18"
@@ -25,3 +29,4 @@ libraryDependencies ++= javaFXModules.map( m =>
 
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.6"
+

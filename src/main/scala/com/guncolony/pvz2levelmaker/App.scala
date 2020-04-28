@@ -61,15 +61,15 @@ object App extends JFXApp {
           })
 
           onKeyPressed = (event:KeyEvent) => {
-            event.getCode.getCode match {
-              case 8 => removeZombie(zombie) // Backspace
-              case 127 => removeZombie(zombie) // Delete
-              case 49 => if(currentWave != null) currentWave.addZombieToLane(zombie, 1)
-              case 50 => if(currentWave != null) currentWave.addZombieToLane(zombie, 2)
-              case 51 => if(currentWave != null) currentWave.addZombieToLane(zombie, 3)
-              case 52 => if(currentWave != null) currentWave.addZombieToLane(zombie, 4)
-              case 53 => if(currentWave != null) currentWave.addZombieToLane(zombie, 5)
-              case 192 => if(currentWave != null) currentWave.addZombie(zombie)
+            event.code match {
+              case KeyCode.BackSpace => removeZombie(zombie) // Backspace
+              case KeyCode.Delete => removeZombie(zombie) // Delete
+              case KeyCode.Digit1 => if(currentWave != null) currentWave.addZombieToLane(zombie, 1)
+              case KeyCode.Digit2 => if(currentWave != null) currentWave.addZombieToLane(zombie, 2)
+              case KeyCode.Digit3 => if(currentWave != null) currentWave.addZombieToLane(zombie, 3)
+              case KeyCode.Digit4 => if(currentWave != null) currentWave.addZombieToLane(zombie, 4)
+              case KeyCode.Digit5 => if(currentWave != null) currentWave.addZombieToLane(zombie, 5)
+              case KeyCode.BackQuote => if(currentWave != null) currentWave.addZombie(zombie) //`
               case otherwise => {}
             }
           }
