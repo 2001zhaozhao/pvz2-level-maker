@@ -2,7 +2,7 @@ enablePlugins(JavaAppPackaging)
 
 name := "PvZ2LevelMaker"
 
-version := "0.2.1"
+version := "0.2.2"
 
 scalaVersion := "2.13.2"
 
