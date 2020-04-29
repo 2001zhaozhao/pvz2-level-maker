@@ -30,3 +30,8 @@ libraryDependencies ++= javaFXModules.map( m =>
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.6"
 
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}

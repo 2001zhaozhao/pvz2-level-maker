@@ -12,9 +12,17 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="sbt: com.google.code.gson:gson:2.8.6:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.scalafx:scalafx_2.13:12.0.2-R18:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.13.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:12.0.2:win:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:12.0.2:win:jar" level="project" />
     <orderEntry type="module-library">
       <library name="sbt: unmanaged-sources-and-docs">
         <CLASSES />
@@ -37,16 +45,8 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-web:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-swing:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-fxml:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:win:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-base:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-controls:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-graphics:12.0.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.openjfx:javafx-media:12.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.13.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalafx:scalafx_2.13:12.0.2-R18:jar" level="project" />
   </component>
 </module>
