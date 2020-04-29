@@ -185,6 +185,19 @@ object Wave {
       case None => {style = "-fx-text-fill: red"}
     })
   }
+  class DoubleTextField (val initialValue: Double, val valueUpdate: Double => Unit) extends TextField {
+    prefWidth = 40
+    text = initialValue.toString
+    text.addListener((_,_,newText) => newText.toDoubleOption match {
+      case Some(value) => {style = ""; valueUpdate(value)}
+      case None => {style = "-fx-text-fill: red"}
+    })
+  }
+  class StringTextField (val initialValue: String, val valueUpdate: String => Unit) extends TextField {
+    prefWidth = 40
+    text = initialValue.toString
+    text.addListener((_,_,newText) => valueUpdate(newText))
+  }
 
   class SpawnZombiesModule (override val json: JsonObject, var additionalPlantFood: Int,
                             var dynamicPlantFood: java.util.ArrayList[Int],
@@ -281,38 +294,66 @@ object Wave {
 
           val objdataElement = moduleObject.get("objdata")
           val objdata = if (objdataElement != null) objdataElement.getAsJsonObject else null
-          if(classString == "SpawnZombiesJitteredWaveActionProps") {
-            // Regular wave
-            val dynamicPlantFood = objdata.get("DynamicPlantfood")
-            module = new SpawnZombiesModule(moduleObject,
-              Option(objdata.get("AdditionalPlantfood")).getOrElse(new JsonPrimitive(0)).getAsInt,
 
-              if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
-                gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Integer]]{}.getType)
-              else new util.ArrayList[Int](util.Arrays.asList(0,0,0,0,0,0,0)),
+          classString match {
+            case "SpawnZombiesJitteredWaveActionProps" =>
+              // Regular wave
+              val dynamicPlantFood = objdata.get("DynamicPlantfood")
+              module = new SpawnZombiesModule(moduleObject,
+                Option(objdata.get("AdditionalPlantfood")).getOrElse(new JsonPrimitive(0)).getAsInt,
 
-              gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
-          }
-          else if(classString == "StormZombieSpawnerProps") {
-            // Sand/snow storm spawner
-            module = new StormModule(moduleObject,
-              objdata.get("ColumnStart").getAsInt,
-              objdata.get("ColumnEnd").getAsInt,
-              objdata.get("GroupSize").getAsInt,
-              objdata.get("TimeBetweenGroups").getAsInt,
-              gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieData]]{}.getType))
-          }
-          else if(classString == "WaveManagerProperties") {
-            // Wave manager
-            module = new WaveManagerModule(moduleObject,
-              objdata.get("FlagWaveInterval").getAsInt,
-              objdata.get("WaveCount").getAsInt,
-              gson.fromJson(objdata.get("Waves"),
-                new TypeToken[java.util.ArrayList[java.util.ArrayList[String]]]{}.getType))
-            waveManagerModule = module.asInstanceOf[WaveManagerModule]
-          }
-          else {
-            module = new Module(moduleObject)
+                if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
+                  gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Integer]]{}.getType)
+                else new util.ArrayList[Int](util.Arrays.asList(0,0,0,0,0,0,0)),
+
+                gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
+            case "WaveManagerProperties" =>
+              // Wave manager
+              module = new WaveManagerModule(moduleObject,
+                objdata.get("FlagWaveInterval").getAsInt,
+                objdata.get("WaveCount").getAsInt,
+                gson.fromJson(objdata.get("Waves"),
+                  new TypeToken[java.util.ArrayList[java.util.ArrayList[String]]]{}.getType))
+              waveManagerModule = module.asInstanceOf[WaveManagerModule]
+            case "StormZombieSpawnerProps" =>
+              // Sand/snow storm spawner
+              module = new StormModule(moduleObject,
+                objdata.get("ColumnStart").getAsInt,
+                objdata.get("ColumnEnd").getAsInt,
+                objdata.get("GroupSize").getAsInt,
+                objdata.get("TimeBetweenGroups").getAsDouble,
+                gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieData]]{}.getType))
+            case "ParachuteRainZombieSpawnerProps" =>
+              // Parachute rain
+              module = new ParachuteRainModule(moduleObject,
+                objdata.get("ColumnStart").getAsInt,
+                objdata.get("ColumnEnd").getAsInt,
+                objdata.get("GroupSize").getAsInt,
+                objdata.get("SpiderCount").getAsInt,
+                objdata.get("SpiderZombieName").getAsString,
+                objdata.get("TimeBetweenGroups").getAsDouble)
+            case "RaidingPartyZombieSpawnerProps" =>
+              // Raiding party
+              module = new RaidingPartyModule(moduleObject,
+                objdata.get("GroupSize").getAsInt,
+                objdata.get("SwashbucklerCount").getAsInt,
+                objdata.get("TimeBetweenGroups").getAsDouble)
+            case "BeachStageEventZombieSpawnerProps" =>
+              // Low tide
+              module = new LowTideModule(moduleObject,
+                objdata.get("ColumnStart").getAsInt,
+                objdata.get("ColumnEnd").getAsInt,
+                objdata.get("GroupSize").getAsInt,
+                objdata.get("ZombieCount").getAsInt,
+                objdata.get("ZombieName").getAsString,
+                objdata.get("TimeBetweenGroups").getAsDouble)
+            case "TidalChangeWaveActionProps" =>
+              // Tidal change
+              module = new TidalChangeModule(moduleObject,
+                objdata.get("TidalChange").getAsJsonObject.get("ChangeAmount").getAsInt,
+                objdata.get("TidalChange").getAsJsonObject.get("ChangeType").getAsString)
+            case _ =>
+              module = new Module(moduleObject)
           }
           modules.addOne(module)
 
