@@ -11,6 +11,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import java.util.ArrayList
 
+import com.guncolony.pvz2levelmaker.AmbushModules._
 import scalafx.geometry.Insets
 import scalafx.scene.{Node, Parent}
 import scalafx.scene.control.{Label, ScrollBar, TextArea, TextField}
@@ -238,52 +239,6 @@ object Wave {
               new IntTextField(dynamicPlantFood.get(5), v => {dynamicPlantFood.set(5, v); requestJsonUpdate()}),
               new IntTextField(dynamicPlantFood.get(6), v => {dynamicPlantFood.set(6, v); requestJsonUpdate()}),
             )
-        }, editor)
-      }
-    }
-  }
-  class StormModule (override val json: JsonObject, var columnStart: Int, var columnEnd: Int, var groupSize: Int,
-                     var timeBetweenGroups: Int, var Zombies: java.util.ArrayList[ZombieData]) extends Module (json) {
-    override def toString: String = "StormModule - " + Zombies.toString
-    override def getZombieTypes: Set[String] = Zombies.asScala.map(_.Type_()).map(toFriendlyZombieName).toSet
-
-    override def getCurrentJson: JsonObject = {
-      // Note - this has the side effect of changing the relevant fields in variable--json
-      val objdata: JsonObject = json.get("objdata").getAsJsonObject
-      objdata.add("ColumnStart", new JsonPrimitive(columnStart))
-      objdata.add("ColumnEnd", new JsonPrimitive(columnEnd))
-      objdata.add("GroupSize", new JsonPrimitive(groupSize))
-      objdata.add("TimeBetweenGroups", new JsonPrimitive(timeBetweenGroups))
-      objdata.add("Zombies", gson.toJsonTree(Zombies,
-        new TypeToken[util.ArrayList[ZombieData]]{}.getType))
-      json
-    }
-
-    override def getDisplayNode: Node = {
-      new VBox {
-        val editor: WaveEditor = new WaveEditor {
-          text = ZombieData.getZombieText(Zombies.asScala)
-          font = new Font("Courier New", 13)
-          wrapText = true
-          prefRowCount = 4
-          text
-
-          text.addListener((_,_,newText) => {
-            Zombies = ZombieData.updateFromZombieText(newText)
-            requestJsonUpdate()
-          })
-        }
-
-        children = Seq(new HBox {
-          children = Seq(new Label(getAlias(json) + " - Storm Ambush | Columns (0-8): "),
-            new IntTextField(columnStart, v => {columnStart = v; requestJsonUpdate()}),
-            new Label(" - "),
-            new IntTextField(columnEnd, v => {columnEnd = v; requestJsonUpdate()}),
-            new Label(" Group Size: "),
-            new IntTextField(groupSize, v => {groupSize = v; requestJsonUpdate()}),
-            new Label(" Seconds Between Groups: "),
-            new IntTextField(timeBetweenGroups, v => {timeBetweenGroups = v; requestJsonUpdate()}),
-          )
         }, editor)
       }
     }
