@@ -208,15 +208,21 @@ object Wave {
     override def getCurrentJson: JsonObject = {
       // Note - this has the side effect of changing the relevant fields in variable--json
       val objdata: JsonObject = json.get("objdata").getAsJsonObject
+
       if(additionalPlantFood > 0)
         objdata.add("AdditionalPlantfood", new JsonPrimitive(additionalPlantFood))
-      else
-        objdata.remove("AdditionalPlantfood")
+      else if(objdata.has("AdditionalPlantfood")) // Remove if existing, unless it was already 0
+        if(objdata.get("AdditionalPlantfood").getAsInt > 0)
+          objdata.remove("AdditionalPlantfood")
+
       if(dynamicPlantFood.asScala.sum > 0)
         objdata.add("DynamicPlantfood", gson.toJsonTree(dynamicPlantFood,
           new TypeToken[util.ArrayList[Integer]]{}.getType))
-      else
-        objdata.remove("DynamicPlantfood")
+      else if(objdata.has("DynamicPlantfood")) // Remove if existing, unless it was already all 0
+        if(gson.fromJson(objdata.get("DynamicPlantfood").getAsJsonArray, new TypeToken[util.ArrayList[Integer]]{}
+            .getType).asInstanceOf[util.ArrayList[Integer]].asScala.map(_.asInstanceOf[Int]).sum > 0)
+          objdata.remove("DynamicPlantfood")
+
       objdata.add("Zombies", gson.toJsonTree(Zombies,
         new TypeToken[util.ArrayList[ZombieDataWithRow]]{}.getType))
       json
