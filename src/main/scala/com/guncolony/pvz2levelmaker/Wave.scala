@@ -397,7 +397,7 @@ object Wave {
             case _ =>
               module = new Module(moduleObject)
           }
-          modules.addOne(module)
+          modules += module
 
           // Store alias in a map for parsing waves later
           val aliases = moduleObject.get("aliases")
@@ -417,7 +417,7 @@ object Wave {
         val wavelist = new ArrayBuffer[Module]()
         // Add each wave to wavelist if it is a valid wave module
         wave.map(referenceToAlias).map(str => moduleAliasMap.get(str).map(wavelist.addOne))
-        waves.addOne(wavelist)
+        waves += wavelist
       }
     }
 
