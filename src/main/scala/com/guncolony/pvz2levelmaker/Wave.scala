@@ -174,7 +174,7 @@ object Wave {
       = getZombieTextStr(Zombies.map(_.toString))
     def updateFromZombieText(text: String): java.util.ArrayList[ZombieDataWithRow] = {
       val Zombies = new java.util.ArrayList[ZombieDataWithRow]
-      text.trim().split("\\s+").map(text => Zombies.add(ZombieDataWithRow.fromString(text)))
+      if(text.nonEmpty) text.trim().split("\\s+").map(text => Zombies.add(ZombieDataWithRow.fromString(text)))
       Zombies
     }
   }
@@ -665,7 +665,7 @@ class WaveEditor extends TextArea {
 
     // (Re)Insert tabs after the previous zombie
     val split = before.split("\\s+")
-    if(split.nonEmpty) {
+    if(before.nonEmpty && split.nonEmpty) {
       val lastLength = split(split.length - 1).length
       builder.append("\u0009" * Wave.getTabSeparatorCount(lastLength))
     }
