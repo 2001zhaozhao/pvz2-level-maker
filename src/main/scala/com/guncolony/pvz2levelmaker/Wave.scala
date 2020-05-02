@@ -171,7 +171,7 @@ object Wave {
       builder.toString.trim
     }
     def getZombieText(Zombies: Iterable[ZombieDataWithRow]): String
-      = getZombieTextStr(Zombies.map(_.toString))
+      = if(Zombies == null) "" else getZombieTextStr(Zombies.map(_.toString))
     def updateFromZombieText(text: String): java.util.ArrayList[ZombieDataWithRow] = {
       val Zombies = new java.util.ArrayList[ZombieDataWithRow]
       text.trim().split("\\s+").map(text => Zombies.add(ZombieDataWithRow.fromString(text)))
@@ -388,7 +388,8 @@ object Wave {
                 objdata.get("GroupSize").getAsInt,
                 objdata.get("ZombieCount").getAsInt,
                 objdata.get("ZombieName").getAsString,
-                objdata.get("TimeBetweenGroups").getAsDouble)
+                objdata.get("TimeBetweenGroups").getAsDouble,
+                objdata.get("TimeBeforeFullSpawn").getAsDouble)
             case "TidalChangeWaveActionProps" =>
               // Tidal change
               module = new TidalChangeModule(moduleObject,
@@ -604,7 +605,9 @@ object Wave {
   def findAvailableModuleName(baseName: String): String = findAvailableModuleName(baseName, 0)
   @scala.annotation.tailrec
   private def findAvailableModuleName(baseName: String, usedNameIndex: Int): String = {
-    val name: String = if(usedNameIndex == 0) baseName else baseName + "-" + usedNameIndex
+    val name: String = if(usedNameIndex == 0) baseName
+        else if(baseName.endsWith("0")) baseName.substring(0, baseName.length - 1) + usedNameIndex
+        else baseName + "-" + usedNameIndex
     getModuleWithName(name) match {
       case Some(_) => findAvailableModuleName(baseName, usedNameIndex + 1)
       case _ => name
@@ -616,7 +619,13 @@ object Wave {
   }
   val spawnZombiesType = new ModuleDialogType("Spawn Zombies", "", SpawnZombiesModule.empty)
   val moduleDialogTypes: Seq[ModuleDialogType] = Seq(
-    spawnZombiesType
+    spawnZombiesType,
+    new ModuleDialogType("Sandstorm", "StormEvent0", () => emptyStormModule("sandstorm")),
+    new ModuleDialogType("Snowstorm", "StormEvent0", () => emptyStormModule("snowstorm")),
+    new ModuleDialogType("Parachute Rain", "ParachuteRainEvent0", emptyParachuteRainModule),
+    new ModuleDialogType("Raiding Party", "RaidingPartyEvent0", emptyRaidingPartyModule),
+    new ModuleDialogType("Low Tide", "LowTideEvent0", emptyLowTideModule),
+    new ModuleDialogType("Tidal Change", "TidalChangeEvent0", emptyTidalChangeModule)
   )
 
   /**

@@ -3,7 +3,7 @@ package com.guncolony.pvz2levelmaker
 import java.text.DecimalFormat
 import java.util
 
-import com.google.gson.{JsonObject, JsonPrimitive}
+import com.google.gson.{JsonArray, JsonObject, JsonPrimitive}
 import com.google.gson.reflect.TypeToken
 import com.guncolony.pvz2levelmaker.Wave.{DoubleTextField, IntTextField, Module, StringTextField, ZombieData, getAlias, gson, requestJsonUpdate, toFriendlyZombieName}
 import scalafx.scene.Node
@@ -70,6 +70,20 @@ object AmbushModules {
       }
     }
   }
+  def emptyStormModule(stormType: String): StormModule = {
+    val json = new JsonObject()
+    json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+    json.add("objclass", new JsonPrimitive("StormZombieSpawnerProps"))
+    val objdata = new JsonObject()
+    json.add("objdata", objdata)
+    objdata.add("ColumnEnd", new JsonPrimitive(7))
+    objdata.add("ColumnStart", new JsonPrimitive(5))
+    objdata.add("GroupSize", new JsonPrimitive(1))
+    objdata.add("TimeBetweenGroups", new JsonPrimitive(2))
+    objdata.add("Type", new JsonPrimitive(stormType))
+    objdata.add("Zombies", new JsonArray())
+    new StormModule(json, 5, 7, 1, 2, new util.ArrayList[ZombieData])
+  }
 
   // Parachute Rain
   class ParachuteRainModule (override val json: JsonObject, var columnStart: Int, var columnEnd: Int,
@@ -115,6 +129,23 @@ object AmbushModules {
       }
     }
   }
+  def emptyParachuteRainModule(): ParachuteRainModule = {
+    val json = new JsonObject()
+    json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+    json.add("objclass", new JsonPrimitive("ParachuteRainZombieSpawnerProps"))
+    val objdata = new JsonObject()
+    json.add("objdata", objdata)
+    objdata.add("ColumnEnd", new JsonPrimitive("7"))
+    objdata.add("ColumnStart", new JsonPrimitive("5"))
+    objdata.add("GroupSize", new JsonPrimitive("2"))
+    objdata.add("SpiderCount", new JsonPrimitive("2"))
+    objdata.add("SpiderZombieName", new JsonPrimitive("lostcity_lostpilot"))
+    objdata.add("TimeBeforeFullSpawn", new JsonPrimitive("1"))
+    objdata.add("TimeBetweenGroups", new JsonPrimitive("0.2"))
+    objdata.add("WaveStartMessage", new JsonPrimitive("[WARNING_PARACHUTERAIN]"))
+    objdata.add("ZombieFallTime", new JsonPrimitive("1.5"))
+    new ParachuteRainModule(json, 7, 5, 2, 2, "lostcity_lostpilot", 0.2)
+  }
 
   // Raiding Party
   class RaidingPartyModule (override val json: JsonObject, var groupSize: Int, var swashbucklerCount: Int,
@@ -147,11 +178,22 @@ object AmbushModules {
       }
     }
   }
+  def emptyRaidingPartyModule(): RaidingPartyModule = {
+    val json = new JsonObject()
+    json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+    json.add("objclass", new JsonPrimitive("RaidingPartyZombieSpawnerProps"))
+    val objdata = new JsonObject()
+    json.add("objdata", objdata)
+    objdata.add("GroupSize", new JsonPrimitive(2))
+    objdata.add("SwashbucklerCount", new JsonPrimitive(4))
+    objdata.add("TimeBetweenGroups", new JsonPrimitive(1))
+    new RaidingPartyModule(json, 2, 4, 1)
+  }
 
   // Low Tide
   class LowTideModule (override val json: JsonObject, var columnStart: Int, var columnEnd: Int,
                              var groupSize: Int, var zombieCount: Int, var zombieName: String,
-                             var timeBetweenGroups: Double) extends Module(json) {
+                             var timeBetweenGroups: Double, var timeBeforeFullSpawn: Double) extends Module(json) {
     override def toString: String = "LowTideModule - " + zombieName
     override def getZombieTypes: Set[String] = Array(zombieName).toSet
 
@@ -162,7 +204,7 @@ object AmbushModules {
       objdata.add("ZombieCount", new JsonPrimitive(zombieCount))
       objdata.add("GroupSize", new JsonPrimitive(groupSize))
       objdata.add("TimeBetweenGroups", new JsonPrimitive(formatter.format(timeBetweenGroups)))
-      // Above is stored as String in vanilla JSONs
+      objdata.add("TimeBeforeFullSpawn", new JsonPrimitive(formatter.format(timeBeforeFullSpawn)))
       objdata.add("ZombieName", new JsonPrimitive(zombieName))
       json
     }
@@ -186,11 +228,29 @@ object AmbushModules {
               prefWidth = 150
             },
             new Label(" Time Between Groups: "),
-            new DoubleTextField(timeBetweenGroups, v => {timeBetweenGroups = v; requestJsonUpdate()})
+            new DoubleTextField(timeBetweenGroups, v => {timeBetweenGroups = v; requestJsonUpdate()}),
+            new Label(" Time Before Full Spawn: "),
+            new DoubleTextField(timeBeforeFullSpawn, v => {timeBeforeFullSpawn = v; requestJsonUpdate()})
           )
         })
       }
     }
+  }
+  def emptyLowTideModule(): LowTideModule = {
+    val json = new JsonObject()
+    json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+    json.add("objclass", new JsonPrimitive("BeachStageEventZombieSpawnerProps"))
+    val objdata = new JsonObject()
+    json.add("objdata", objdata)
+    objdata.add("ColumnEnd", new JsonPrimitive(7))
+    objdata.add("ColumnStart", new JsonPrimitive(5))
+    objdata.add("GroupSize", new JsonPrimitive(2))
+    objdata.add("TimeBeforeFullSpawn", new JsonPrimitive(1))
+    objdata.add("TimeBetweenGroups", new JsonPrimitive(0.5))
+    objdata.add("WaveStartMessage", new JsonPrimitive("[WARNING_LOW_TIDE]"))
+    objdata.add("ZombieCount", new JsonPrimitive(2))
+    objdata.add("ZombieName", new JsonPrimitive("beach"))
+    new LowTideModule(json, 7, 5, 2, 2, "beach", 0.5, 1)
   }
 
   // Tidal Change
@@ -219,5 +279,17 @@ object AmbushModules {
         })
       }
     }
+  }
+  def emptyTidalChangeModule(): TidalChangeModule = {
+    val json = new JsonObject()
+    json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+    json.add("objclass", new JsonPrimitive("TidalChangeWaveActionProps"))
+    val objdata = new JsonObject()
+    json.add("objdata", objdata)
+    val tidal = new JsonObject()
+    objdata.add("TidalChange", tidal)
+    tidal.add("ChangeAmount", new JsonPrimitive(5))
+    tidal.add("ChangeType", new JsonPrimitive("absolute"))
+    new TidalChangeModule(json, 5, "absolute")
   }
 }
