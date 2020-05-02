@@ -1,5 +1,5 @@
 package com.guncolony.pvz2levelmaker
-import com.guncolony.pvz2levelmaker.Wave.SpawnZombiesModule
+import com.guncolony.pvz2levelmaker.Wave.{ModuleDialogType, SpawnZombiesModule}
 import javafx.beans.value.ChangeListener
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
@@ -26,6 +26,8 @@ object App extends JFXApp {
   var currentWave: WaveEditor = null // Currently selected wave
 
   var textChangingInternally: Boolean = false
+
+  var lastModuleType: Option[ModuleDialogType] = None // Last module type selected in the add modules dialog
 
   val zombieListView = new GridPane {
     hgap = 6

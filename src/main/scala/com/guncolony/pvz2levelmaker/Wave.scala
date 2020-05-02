@@ -633,7 +633,8 @@ object Wave {
    * Opens a dialog that allows the user to add modules to the wave
    */
   def addWaveModulesDialog(waveName: String, addModuleFunction: Module => Unit): Unit = {
-    val result = new ChoiceDialog(defaultChoice = spawnZombiesType, choices = moduleDialogTypes) {
+    val result = new ChoiceDialog(defaultChoice = App.lastModuleType.getOrElse(spawnZombiesType),
+            choices = moduleDialogTypes) {
       initOwner(App.stage)
       title = "Add Wave Module to " + waveName
       headerText = "Please choose the type of module\nto add to your wave."
@@ -641,8 +642,10 @@ object Wave {
     }.showAndWait()
 
     result match {
-      case Some(moduleType) => addModuleFunction(moduleType.moduleCreator()
-        .setAlias(findAvailableModuleName(waveName + moduleType.suffix))) // Run the function to add this module to the wave
+      case Some(moduleType) =>
+        App.lastModuleType = Some(moduleType)
+        // Run the function to add this module to the wave
+        addModuleFunction(moduleType.moduleCreator().setAlias(findAvailableModuleName(waveName + moduleType.suffix)))
       case None =>
     }
   }
