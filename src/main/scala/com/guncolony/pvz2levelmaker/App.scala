@@ -1,4 +1,5 @@
 package com.guncolony.pvz2levelmaker
+import com.guncolony.pvz2levelmaker.Wave.SpawnZombiesModule
 import javafx.beans.value.ChangeListener
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
@@ -6,15 +7,17 @@ import scalafx.event.ActionEvent
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
-import scalafx.scene.control.{Button, ContextMenu, Label, MenuItem, ScrollPane, TextArea, TextField}
+import scalafx.scene.control.{Alert, Button, ButtonType, ContextMenu, Label, MenuItem, ScrollPane, TextArea, TextField, TextInputDialog}
 import scalafx.scene.image.Image
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseButton, MouseEvent}
 import scalafx.scene.layout.{AnchorPane, Background, BorderPane, GridPane, HBox, Priority, StackPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.scene.text.{Font, TextAlignment}
 import scalafx.Includes._
+import scalafx.scene.control.Alert.AlertType
 
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 object App extends JFXApp {
   val APP_VERSION: String = Option(getClass.getPackage.getImplementationVersion).getOrElse("development version")
@@ -124,27 +127,37 @@ object App extends JFXApp {
     promptText = "Paste the JSON here and click \"Finish Editing\" to load the level"
 
     // When text changed, the update json button will become available
-    text.addListener((_, _, _) => {
-      if(!textChangingInternally) {
-        Wave.hideWavesInGui()
-        jsonUpdateButton.disable = false
-        zombieTypesUpdateButton.disable = true
-      }
-    })
+    text.addListener((_, _, _) => if(!textChangingInternally) {enterTextEditMode()})
   }
 
+  def enterTextEditMode(): Unit = {
+    Wave.hideWavesInGui()
+    jsonUpdateButton.disable = false
+    zombieTypesUpdateButton.disable = true
+    addWavesButton.disable = true
+    oneClickRemovePfButton.disable = true
+  }
+
+  def exitTextEditMode(): Unit = {
+    Wave.updateModules()
+    Wave.showWavesInGui()
+    jsonUpdateButton.disable = true
+    zombieTypesUpdateButton.disable = false
+    addWavesButton.disable = false
+    oneClickRemovePfButton.disable = false
+  }
+
+  // Function buttons
+
   val jsonUpdateButton: Button = new Button{
+    disable = true
     text = "Finish Editing"
     tooltip = "After editing the JSON manually, you must click this button to make the program reload the JSON."
-    onAction = handle {
-      Wave.updateModules()
-      Wave.showWavesInGui()
-      disable = true
-      zombieTypesUpdateButton.disable = false
-    }
+    onAction = handle {exitTextEditMode()}
   }
 
   val zombieTypesUpdateButton: Button = new Button {
+    disable = true
     text = "Reload Zombies"
     tooltip = "Replace the zombie list on the top by a list of zombies detected in this level."
     onAction = handle {
@@ -152,7 +165,73 @@ object App extends JFXApp {
       zombieListView.zombieList.addAll(Wave.findAllZombies())
       zombieListView.updatePane()
     }
+  }
+
+  val addWavesButton: Button = new Button {
     disable = true
+    text = "Add Waves"
+    tooltip = "Add waves to the end of the level."
+
+    onAction = handle {
+      val result = new TextInputDialog(defaultValue = "1") {
+        initOwner(stage)
+        title = "Add Waves"
+        headerText = "The waves will be added at the end of the level.\n" +
+          "If unused waves with the same name already exist, they will be used instead.\n" +
+          "Currently, there are " + Wave.waves.size + " waves in the level."
+        contentText = "Number of waves:"
+      }.showAndWait()
+      result match {
+        case Some(timesStr) =>
+          timesStr.toIntOption match {
+            case Some(times) if times > 0 => for(_ <- 1 to times.toInt) Wave.addWave(0)
+            case None => new Alert(AlertType.Error, "You did not enter a valid number!").showAndWait()
+          }
+          exitTextEditMode()
+        case None =>
+      }
+    }
+  }
+
+  val oneClickRemovePfButton: Button = new Button {
+    text = "Remove PF.."
+    tooltip = "Remove Plant Food from all waves in this level."
+
+    val ButtonTypeRemoveAll = new ButtonType("Remove All PF")
+    val ButtonTypeRemoveDynamic = new ButtonType("Remove Dynamic PF")
+    onAction = handle {
+      val result = new Alert(AlertType.Confirmation) {
+        initOwner(stage)
+        title = "Remove Plant Food"
+        headerText = "Remove all plant food spawns or only the Dynamic Difficulty plant food settings?"
+        contentText = "This will affect all waves in the file, regardless of whether they are used in any zombie wave."+
+          " Any changes can not be reverted."
+        buttonTypes = Seq(ButtonTypeRemoveAll, ButtonTypeRemoveDynamic, ButtonType.Cancel)
+      }.showAndWait()
+
+      result match {
+        case Some(ButtonTypeRemoveAll) =>
+          for(module <- Wave.modules) {
+            module match {
+              case spawnZombies: SpawnZombiesModule =>
+                spawnZombies.additionalPlantFood = 0
+                spawnZombies.dynamicPlantFood = Wave.SpawnZombiesModule.createEmptyDynamicPlantFoodList
+              case _ =>
+            }
+          }
+          Wave.requestJsonUpdate(); exitTextEditMode()
+        case Some(ButtonTypeRemoveDynamic) =>
+          for(module <- Wave.modules) {
+            module match {
+              case spawnZombies: SpawnZombiesModule =>
+                spawnZombies.dynamicPlantFood = Wave.SpawnZombiesModule.createEmptyDynamicPlantFoodList
+              case _ =>
+            }
+          }
+          Wave.requestJsonUpdate(); exitTextEditMode()
+        case _ =>
+      }
+    }
   }
 
   val waveEditorPane = new VBox {
@@ -183,9 +262,13 @@ object App extends JFXApp {
         right = new BorderPane{
           margin = Insets.apply(0, 20, 0, 0)
           center = jsonBox
-          bottom = new BorderPane {
-            left = jsonUpdateButton
-            center = zombieTypesUpdateButton
+          bottom = new HBox {
+            children = Seq(
+              jsonUpdateButton,
+              zombieTypesUpdateButton,
+              addWavesButton,
+              oneClickRemovePfButton
+            )
           }
         }
 

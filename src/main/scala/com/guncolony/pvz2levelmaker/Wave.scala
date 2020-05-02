@@ -58,6 +58,16 @@ object Wave {
       "RTID(" + friendlyName + "@ZombieTypes)"
   }
 
+  /**
+   * Adds RTID prefix and CurrentLevel suffix
+   */
+  def aliasToReference(alias: String): String = {
+    if(alias.contains("@"))
+      "RTID(" + alias + ")"
+    else
+      "RTID(" + alias + "@CurrentLevel)"
+  }
+
   val aliasesUnnamed = new JsonArray()
   aliasesUnnamed.add("[unnamed]")
   def getAlias(json: JsonObject): String =
@@ -101,6 +111,17 @@ object Wave {
 
         children = Seq(new Label(getAlias(json) + " - " + json.get("objclass").getAsString), editor)
       }
+    }
+
+    /**
+     * Sets the alias of this module, mostly used for creation of new modules
+     * @return The module itself
+     */
+    def setAlias(alias: String): Module = {
+      val aliases = new JsonArray()
+      aliases.add(new JsonPrimitive(alias))
+      json.add("aliases", aliases)
+      this
     }
   }
   class WaveManagerModule (override val json: JsonObject, var flagWaveInterval: Int, var waveCount: Int,
@@ -199,6 +220,21 @@ object Wave {
     text.addListener((_,_,newText) => valueUpdate(newText))
   }
 
+  object SpawnZombiesModule {
+    // Creates a java util arraylist with 7 zeros
+    def createEmptyDynamicPlantFoodList: util.ArrayList[Int] =
+      new util.ArrayList[Int](util.Arrays.asList(0,0,0,0,0,0,0))
+
+    def empty(): SpawnZombiesModule = {
+      val json = new JsonObject()
+      json.add("aliases", new JsonArray()) // Empty alias to make sure it's at the top of the JSON
+      json.add("objclass", new JsonPrimitive("SpawnZombiesJitteredWaveActionProps"))
+      val objdata = new JsonObject()
+      json.add("objdata", objdata)
+      objdata.add("Zombies", new JsonArray())
+      new SpawnZombiesModule(json, 0, createEmptyDynamicPlantFoodList, new util.ArrayList())
+    }
+  }
   class SpawnZombiesModule (override val json: JsonObject, var additionalPlantFood: Int,
                             var dynamicPlantFood: java.util.ArrayList[Int],
                             var Zombies: java.util.ArrayList[ZombieDataWithRow]) extends Module (json) {
@@ -310,7 +346,7 @@ object Wave {
 
                 if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
                   gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Integer]]{}.getType)
-                else new util.ArrayList[Int](util.Arrays.asList(0,0,0,0,0,0,0)),
+                else SpawnZombiesModule.createEmptyDynamicPlantFoodList,
 
                 gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
             case "WaveManagerProperties" =>
@@ -436,13 +472,6 @@ object Wave {
       newModules.add(module.getCurrentJson)
     }
 
-    /*
-    val array = fileObject.get("objects").getAsJsonArray
-    while(array.size > 0) {
-      array.remove(array.size - 1)
-    }
-    */
-
     fileObject.add("objects", newModules)
 
     val prettyJsonString = gson.toJson(fileObject)
@@ -484,13 +513,64 @@ object Wave {
 
   }
 
-  // Finds all zombie types in the current level
+  /**
+   * Finds all zombie types in the current level
+   */
   def findAllZombies(): List[String] = {
     val typeSet = scala.collection.mutable.Set[String]()
     for(moduleTypeSet <- modules.map(_.getZombieTypes)) {
       typeSet.addAll(moduleTypeSet)
     }
     typeSet.toList.sorted
+  }
+
+  // Optionally gets the module with the specified identifier
+  /**
+   * Optionally gets the module with the specified identifier
+   */
+  def getModuleWithName(name: String): Option[Module] = {
+    for(module <- modules) {
+      if(getAlias(module.json) == name) return Option(module)
+    }
+    None
+  }
+
+  /**
+   * Outputs if the specified module is in any waves
+   */
+  def isModuleUsed(module: Module): Boolean = waves.exists(_.contains(module))
+
+  /**
+   * Adds one wave to the end of the level. It contains an empty SpawnZombiesModule.
+   * <p>Uses an existing SpawnZombiesModule with the same name instead if unused.
+   * If used it will attempt find a new name.
+   * <p>This method edits the level JSON, so the internal storage needs to be updated after running it.
+   */
+  @scala.annotation.tailrec
+  def addWave(usedNameIndex: Int): Unit = {
+    val waveNumber: Int = waveManagerModule.waves.size + 1 // Waves start at Wave1 not Wave0
+    val name: String = if(usedNameIndex == 0) "Wave"+waveNumber else "Wave"+waveNumber+"-"+usedNameIndex
+
+    def addWaveJson(): Unit = {
+      val newWave = new util.ArrayList[String]
+      newWave.add(aliasToReference(name))
+
+      waveManagerModule.waves.add(newWave)
+    }
+    getModuleWithName(name) match {
+      case Some(module) =>
+        if(isModuleUsed(module)) {
+          addWave(usedNameIndex) // Find the next name instead of making two waves point to the same module
+        }
+        else {
+          addWaveJson()
+          Wave.requestJsonUpdate()
+        }
+      case None =>
+        modules += SpawnZombiesModule.empty().setAlias(name)
+        addWaveJson()
+        Wave.requestJsonUpdate()
+    }
   }
 }
 
