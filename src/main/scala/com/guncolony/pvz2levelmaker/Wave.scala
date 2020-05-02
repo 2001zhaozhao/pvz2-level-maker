@@ -171,7 +171,7 @@ object Wave {
       builder.toString.trim
     }
     def getZombieText(Zombies: Iterable[ZombieDataWithRow]): String
-      = if(Zombies == null) "" else getZombieTextStr(Zombies.map(_.toString))
+      = getZombieTextStr(Zombies.map(_.toString))
     def updateFromZombieText(text: String): java.util.ArrayList[ZombieDataWithRow] = {
       val Zombies = new java.util.ArrayList[ZombieDataWithRow]
       text.trim().split("\\s+").map(text => Zombies.add(ZombieDataWithRow.fromString(text)))
@@ -347,8 +347,9 @@ object Wave {
                 if (dynamicPlantFood != null) // Default value since DynamicPlantFood is optional
                   gson.fromJson(dynamicPlantFood, new TypeToken[java.util.ArrayList[Integer]]{}.getType)
                 else SpawnZombiesModule.createEmptyDynamicPlantFoodList,
-
-                gson.fromJson(objdata.get("Zombies"), new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
+                // Sometimes the JSON doesn't have Zombies array, so use an Option to make sure we internally have it
+                gson.fromJson(Option(objdata.get("Zombies")).getOrElse(new JsonArray()),
+                new TypeToken[java.util.ArrayList[ZombieDataWithRow]]{}.getType))
             case "WaveManagerProperties" =>
               // Wave manager
               module = new WaveManagerModule(moduleObject,
