@@ -14,7 +14,7 @@ import java.util.ArrayList
 import com.guncolony.pvz2levelmaker.AmbushModules._
 import scalafx.geometry.Insets
 import scalafx.scene.{Node, Parent}
-import scalafx.scene.control.{Label, ScrollBar, TextArea, TextField}
+import scalafx.scene.control.{ButtonType, ChoiceDialog, Dialog, Label, ScrollBar, TextArea, TextField}
 import scalafx.scene.text.{Font, Text}
 
 import scala.collection.mutable
@@ -430,21 +430,45 @@ object Wave {
 
     // Add the visual representation of waves to the main GUI
     App.waveEditorPane.children.clear()
-    var index = 0
-    for(wave <- waves) {
+    for(i <- waves.indices) {
+      val wave = waves(i)
       val wavePane = new VBox() {
         margin = Insets.apply(10, 0, 10, 0)
         padding = Insets.apply(10, 10, 10, 10)
         style = "-fx-background-color: #b0b76d"
-        children = new Label("Wave " + (index+1)) {
-          style = "-fx-font-weight: bold;"
+        children = new HBox {
+          children = Seq(new Label("Wave " + (i + 1) + "  ") {style = "-fx-font-weight: bold;"},
+            new Label("[+Modules]") { // Add waves button
+              font = new Font("Courier New", 11)
+              tooltip = "Click to add wave modules"
+              onMouseEntered = handle {style = "-fx-font-weight: bold; -fx-text-fill: brown;"}
+              onMouseExited = handle {style = ""}
+              onMouseClicked = handle {addWaveModulesDialog("Wave" + (i + 1), module => {
+                // When a module is chosen, add it to both the module list and the wave manager, and refresh the app
+                if(wave.nonEmpty) {
+                  // Try to insert module where it should be in the JSON file
+                  if(modules.contains(wave.last)) {
+                    modules.insert(modules.indexOf(wave.last) + 1, module)
+                  }
+                  else {
+                    modules += module
+                    System.err.println("Error: ArrayBuffer modules did not contain the last module of wave " + i + "!")
+                  }
+                }
+                else {
+                  modules += module
+                }
+                waveManagerModule.waves.get(i).add(aliasToReference(getAlias(module.json)))
+                requestJsonUpdate(); App.exitTextEditMode()
+              })}
+            }
+          )
         }
       }
       for(module <- wave) {
         wavePane.children.add(module.getDisplayNode)
       }
       App.waveEditorPane.children.add(wavePane)
-      index += 1
     }
   }
 
@@ -570,6 +594,46 @@ object Wave {
         modules += SpawnZombiesModule.empty().setAlias(name)
         addWaveJson()
         Wave.requestJsonUpdate()
+    }
+  }
+
+  /**
+   * Finds the module name with the lowest number suffix (or more preferably, no suffix)
+   * not occupied by an existing module.
+   */
+  def findAvailableModuleName(baseName: String): String = findAvailableModuleName(baseName, 0)
+  @scala.annotation.tailrec
+  private def findAvailableModuleName(baseName: String, usedNameIndex: Int): String = {
+    val name: String = if(usedNameIndex == 0) baseName else baseName + "-" + usedNameIndex
+    getModuleWithName(name) match {
+      case Some(_) => findAvailableModuleName(baseName, usedNameIndex + 1)
+      case _ => name
+    }
+  }
+
+  class ModuleDialogType(val displayName: String, val suffix: String, val moduleCreator: () => Module) {
+    override def toString: String = displayName
+  }
+  val spawnZombiesType = new ModuleDialogType("Spawn Zombies", "", SpawnZombiesModule.empty)
+  val moduleDialogTypes: Seq[ModuleDialogType] = Seq(
+    spawnZombiesType
+  )
+
+  /**
+   * Opens a dialog that allows the user to add modules to the wave
+   */
+  def addWaveModulesDialog(waveName: String, addModuleFunction: Module => Unit): Unit = {
+    val result = new ChoiceDialog(defaultChoice = spawnZombiesType, choices = moduleDialogTypes) {
+      initOwner(App.stage)
+      title = "Add Wave Module to " + waveName
+      headerText = "Please choose the type of module\nto add to your wave."
+      contentText = "Module type:"
+    }.showAndWait()
+
+    result match {
+      case Some(moduleType) => addModuleFunction(moduleType.moduleCreator()
+        .setAlias(findAvailableModuleName(waveName + moduleType.suffix))) // Run the function to add this module to the wave
+      case None =>
     }
   }
 }
