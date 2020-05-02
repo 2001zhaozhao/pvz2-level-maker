@@ -590,12 +590,12 @@ object Wave {
         }
         else {
           addWaveJson()
-          Wave.requestJsonUpdate()
+          requestJsonUpdate()
         }
       case None =>
         modules += SpawnZombiesModule.empty().setAlias(name)
         addWaveJson()
-        Wave.requestJsonUpdate()
+        requestJsonUpdate()
     }
   }
 

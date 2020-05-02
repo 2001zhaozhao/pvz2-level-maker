@@ -184,10 +184,14 @@ object App extends JFXApp {
       result match {
         case Some(timesStr) =>
           timesStr.toIntOption match {
-            case Some(times) if times > 0 => for(_ <- 1 to times.toInt) Wave.addWave(0)
+            case Some(times) if times > 0 => {
+              for(_ <- 1 to times.toInt) Wave.addWave(0)
+              Wave.waveManagerModule.waveCount = Wave.waveManagerModule.waves.size
+              Wave.requestJsonUpdate()
+              exitTextEditMode()
+            }
             case None => new Alert(AlertType.Error, "You did not enter a valid number!").showAndWait()
           }
-          exitTextEditMode()
         case None =>
       }
     }
